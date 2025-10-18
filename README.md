@@ -14,6 +14,7 @@
 
 ChatGPT 的對話 ： PDFCorwd
 網路上同主題的解法 : Notebook-LM
+
 ---
 
 ## 1. 商業理解（Business Understanding）
