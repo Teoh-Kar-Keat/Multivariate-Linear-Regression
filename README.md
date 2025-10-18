@@ -29,7 +29,7 @@
 
 | 項目 | 方法/操作 | 原因/目的 |
 | --- | --- | --- |
-| 資料來源 | Kaggle CarPrice 資料集（CarPrice_Assignment.csv） | 提供完整欄位與範例，方便快速 EDA |
+| 資料來源 | [Kaggle CarPrice 資料集](https://www.kaggle.com/datasets/sidharth178/car-prices-dataset)（CarPrice_Assignment.csv） | 提供完整欄位與範例，方便快速 EDA |
 | 欄位檢視 | price、CarName、fueltype、aspiration、doornumber、carbody、drivewheel、enginelocation、enginesize、horsepower、citympg、highwaympg… | 確認目標與特徵，識別需處理的欄位 |
 | 缺失值處理 | 特殊標記如 "?" 轉 NaN，數值欄位以中位數填補，類別欄位以眾數填補 | 確保資料完整性，避免模型因缺失值錯誤訓練 |
 | 目標變數分布 | price 右偏，mean=13276.71, median=10295 | 採 log(price) 或 percentile-based 指標，可減少極端值對模型影響 |
