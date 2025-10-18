@@ -16,6 +16,8 @@ ChatGPT 的對話 ： [PDFCorwd](https://github.com/Teoh-Kar-Keat/Multivariate-L
 
 網路上同主題的解法 : [Notebook-LM.md](https://github.com/Teoh-Kar-Keat/Multivariate-Linear-Regression/blob/main/Notebook-LM.md)
 
+程式 ： [Car_price.ipynb](https://github.com/Teoh-Kar-Keat/Multivariate-Linear-Regression/blob/main/car_price.ipynb)
+
 ---
 
 ## 1. 商業理解（Business Understanding）
