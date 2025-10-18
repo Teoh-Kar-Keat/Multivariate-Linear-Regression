@@ -5,8 +5,8 @@
 ## 摘要（Executive Summary）
 
 - 目的：建立可預測二手汽車價格的模型，支援二手車定價、買賣估價與平台推薦。
-- 方法：遵循 CRISP-DM，從資料取得 → 清洗 → 特徵工程 → 建模 → 評估 → 部署。候選模型包含線性模型與數個非線性模型（隨機森林、Gradient Boosting）。
-- 關鍵發現（範例）：關鍵影響因子為車齡（年份）、里程、品牌/車系與車況（維修紀錄）；非線性模型通常表現優於單純線性模型；資料偏態與極端值需特別處理。
+- 方法：遵循 CRISP-DM，從資料取得 → 清洗 → 特徵工程 → 建模 → 評估 → 部署。候選模型包含線性模型與數個非線性模型（隨機森林、Gradient Boosting）等。
+- 關鍵發現（來自實驗）：car_price.ipynb 的 EDA 顯示 price 分布右偏且存在高價離群值，類別高基數（如 CarName）會導致 one-hot 後維度增長；部分數值如 enginesize、horsepower 與 curbweight 對價格有顯著影響。
 - 建議：建立資料品質監控、採用模型監測與定期重訓機制、加入地區與維修記錄等額外欄位以提升準確度與公平性。
 
 ---
@@ -41,38 +41,54 @@
 
 ### 2.1 資料來源與欄位說明
 
-- 例：Kaggle dataset、平台歷史成交紀錄、第三方市場價格 API。
-- 欄位（例）：`price`（目標）、`brand`、`model`、`year`、`mileage`、`engine_size`、`fuel_type`、`transmission`、`body_type`、`location`、`num_owners`、`service_history`、`extras`、上架時間等。
+- 使用資料集（notebook 下載）：Kaggle — hellbuoy/car-price-prediction  
+- 下載檔案範例：CarPrice_Assignment.csv（搭配 Data Dictionary）  
+- 欄位（例）：`price`（目標）、`CarName`、`fueltype`、`aspiration`、`doornumber`、`carbody`、`drivewheel`、`enginelocation`、`enginesize`、`horsepower`、`citympg`、`highwaympg` 等（詳見資料字典）
 
-### 2.2 初步探索（EDA）步驟（每一步都要做且要記錄結論）
+### 2.2 來自 car_price.ipynb 的 EDA 摘要（notebook-derived findings）
 
-1. 欄位與資料型態檢查
-    - 目的：發現被當字串的數值欄、錯誤欄位或重複欄位。
-2. 缺失值檢視（逐欄）
-    - 目的：釐清缺失模式（隨機缺失 vs 系統性缺失）。
-    - 建議輸出：每欄缺失率表格（%），並視覺化（條形圖）。
-3. 目標變數檢視（price）
-    - 目的：觀察分布（偏態、長尾、是否需 log 轉換）、極端值。
-    - 視覺化：直方圖 + boxplot，並註明均值 / 中位數 / 四分位差。
-4. 各特徵單變量分析（數值 & 類別）
-    - 數值：均值、標準差、最小/最大、分位數與箱型圖。
-    - 類別：top-N 分布、罕見類別比例（<1% 的類別）。
-5. 特徵間關聯（雙變量）
-    - 連續 vs 連續：散佈圖、Pearson/Spearman 相關係數。
-    - 類別 vs 連續：箱形圖（不同品牌 vs price）。
-6. 時序性檢查（若有）
-    - 例如價格是否隨時間（上架日期）季節性變動。
-7. 資料質量問題：重複記錄、明顯錯誤（如里程為負數或年份在未來）
+- 讀取資料結果：  
+  - 檔案：CarPrice_Assignment.csv  
+  - 資料形狀：205 rows × 26 columns  
+  - 偵測到的 target 欄位：price
+- 缺失值：  
+  - 原始檢查後：在 notebook 片段中未見大量缺失（isna().sum() 顯示每欄皆為 0）  
+  - 處理策略（notebook 採用）：將特殊標記（例如 "?"）替換為 NaN，對數值欄位以中位數填補，類別欄位以眾數填補；處理後資料無缺失
+- 目標 price 的描述性統計（notebook 輸出）：  
+  - count: 205  
+  - mean: 13276.71  
+  - std: 7988.85  
+  - min: 5118.00  
+  - 25%: 7788.00  
+  - 50% (median): 10295.00  
+  - 75%: 16503.00  
+  - max: 45400.00  
+  - 解讀：price 分布右偏（存在數個高價離群值），可考慮對 price 做 log 轉換或在評估時報告中位數/MAE 與 percentile-based 指標。
+- 部分類別欄位分布（notebook 顯示前幾項）：  
+  - fueltype：gas = 185, diesel = 20  
+  - aspiration：std = 168, turbo = 37  
+  - doornumber：four = 115, two = 90  
+  - carbody：sedan = 96, hatchback = 70, wagon = 25, hardtop = 8, convertible = 6  
+  - drivewheel：fwd = 120, rwd = 76, 4wd = 9  
+  - enginelocation：front = 202, rear = 3  
+  - fuelsystem top: mpfi = 94, 2bbl = 66, idi = 20, ...  
+  - cylindernumber top: four = 159, six = 24, five = 11, ...
+- 特徵工程 / 編碼（notebook 操作）：  
+  - 類別欄位使用 One-Hot Encoding (drop_first=True) → 編碼後特徵數: 190
+- 資料切分（notebook 操作）：  
+  - Train / Test 切分（80% / 20%）  
+  - 結果 shapes：X_train (164, 190), X_test (41, 190), y_train (164,), y_test (41,)
+- 其他數值欄位摘要（節錄）：  
+  - enginesize mean ≈ 126.91（min 61, max 326）  
+  - horsepower mean ≈ 104.12（min 48, max 288）  
+  - curbweight mean ≈ 2555.57（min 1488, max 4066）
 
-### 常見發現與意義
+（以上數值皆直接來自 car_price.ipynb 執行輸出）
 
-- `price` 往往右偏（少數高價車影響均值），此時用中位數做基準比較較穩健；或對 price 做 log 變換能改善模型穩定性。
-- 類別過多（如 model 型號非常多）會導致 one-hot 稀疏化，需要採「合併低頻類別」或 target encoding。
-- 里程與年份高度相關（車齡），要注意多重共線性。
-
-### 為什麼要這樣做（Reasoning）
-
-完整的 EDA 能揭露資料的陷阱（缺失模式、偏態、錯誤），避免後續模型在骯髒資料上過度擬合或表現不佳，並提供合理的特徵處理策略依據。
+### 2.3 初步結論（來自 notebook）
+- 資料欄位完整、缺失少（或已處理），可專注於偏態、極端值、與類別高基數問題（例如 CarName）。  
+- 由於 price 明顯右偏，建議在訓練線性模型時試試 log(price)，或針對 tree-based 模型直接使用原始 price 並以 MAE、RMSE 與分群（price bucket）檢查偏差。  
+- 類別型特徵透過 one-hot 編碼後會產生高維度（190 features），在模型選擇上可考慮使用 target encoding 或頻次編碼以減少維度爆炸（特別是在更大資料集上）。
 
 ---
 
@@ -91,7 +107,7 @@
     - 中量缺失（5–30%）：視分布採中位數或分群後分別填補（例如依品牌填補）。
     - 大量缺失（>30%）：考慮移除該欄或把缺失視為一種訊息（加上缺失 flag）。
 3. 類別欄位
-    - 少量缺失：以眾數填補或填為 `"Unknown"`。
+    - 少量缺失：以眾數填補或填為 "Unknown"。
     - 大量缺失：若欄位具業務重要性（如 service_history），考慮保留並用特殊類別標註缺失。
 4. 特殊標記（例如 "NA", "-", "?"）
     - 先統一轉為空值再處理。
@@ -117,7 +133,7 @@
 
 1. One-Hot Encoding（適用於低基數類別）
     - 優點：不引入順序假設、易用於線性模型。
-    - 缺點：基數高會導致維度爆炸。
+    - 缺點：基數高會導致維度爆炸（notebook 中編碼後 features = 190）。
 2. Target Encoding / Mean Encoding（適用於高基數）
     - 為每個類別放上訓練集的平均 price（需做平滑與避免洩漏）。
     - 使用 K-fold target encoding 或 leave-one-out 以避免資料洩漏。
@@ -186,32 +202,7 @@
 
 **為什麼**：從簡單到複雜以分步驗證方式評估每種模型的效益與成本，並在商業可接受範圍內選擇最合適方案。
 
-### 4.2 模型訓練策略與 Pipeline 設計
-
-- 建議把資料處理（填補、編碼、標準化）、特徵選擇與模型訓練打包成 pipeline，以確保在訓練與預測時處理一致。
-- 使用 cross-validation（k-fold）評估模型在小偏差／高穩定性的表現。
-- 若使用 target encoding，要把 encoding 納入 cross-validation 的內部流程以避免洩漏。
-
-**為什麼**：pipeline 與嚴謹 CV 可以避免資料洩漏並提高結果可重現性。
-
-### 4.3 超參數調整（Hyperparameter Tuning）
-
-- 調參方法：Grid Search（小空間）、Random Search（大空間）、或 Bayesian Optimization（效率更高）。
-- 調參時的評估依據：用 cross-validation 的平均 MAE / R² 作為指標。
-- 注意：如果最終評估用的是 `MAE on test`，調參時也應以 MAE 作為優化目標（不要瞎用不同指標）。
-
-**為什麼**：不同指標會導致模型偏好不同特徵。調參應與最終商業 KPI 對齊。
-
-### 4.4 模型選擇與比較（Model Selection）
-
-- 比較指標：MAE、MSE、RMSE、R²。附上 cross-validation 的平均值與標準差。
-- 其他考量：推論速度、模型大小、可解釋性、對異常值的魯棒性。
-- 建議輸出表格：每一模型的 CV MAE、CV R²、訓練時間、推論延遲（ms）與註解（是否需要大量記憶體）。
-
-**為什麼**：除了預測準確度，實務上延遲與可維護性同等重要。
-
 ---
-
 ## 5. Evaluation（評估）
 
 ### 5.1 評估指標詳細說明（及選用理由）
