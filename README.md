@@ -12,7 +12,7 @@
 
 建議：建立資料品質監控與模型監測機制，並持續收集額外欄位（如地區、維修紀錄）以提升模型準確性與公平性。
 
-ChatGPT 的對話 ： PDFCorwd
+ChatGPT 的對話 ： [PDFCorwd](https://github.com/Teoh-Kar-Keat/Multivariate-Linear-Regression/blob/main/PDFCrowd-Automobile%20Dataset%20%E7%B7%9A%E6%80%A7%E5%9B%9E%E6%AD%B8%E5%88%86%E6%9E%90%E5%A0%B1%E5%91%8A.pdf)
 
 網路上同主題的解法 : [Notebook-LM.md](https://github.com/Teoh-Kar-Keat/Multivariate-Linear-Regression/blob/main/Notebook-LM.md)
 
