@@ -12,6 +12,8 @@
 
 建議：建立資料品質監控與模型監測機制，並持續收集額外欄位（如地區、維修紀錄）以提升模型準確性與公平性。
 
+ChatGPT 的對話 ： PDFCorwd
+網路上同主題的解法 : Notebook-LM
 ---
 
 ## 1. 商業理解（Business Understanding）
