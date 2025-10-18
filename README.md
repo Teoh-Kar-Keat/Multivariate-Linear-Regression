@@ -99,6 +99,7 @@ ChatGPT 的對話 ： [PDFCorwd](https://github.com/Teoh-Kar-Keat/Multivariate-L
 
 - MAE / 平均價格 ≈ 18.1%
 - MAE / 標準差 ≈ 27.2%
+<img width="976" height="706" alt="image" src="https://github.com/user-attachments/assets/2f1c6bf9-a2fc-484d-8229-506bb209c2fa" />
 
 **為什麼隨機森林效果最好**：
 
