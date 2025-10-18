@@ -14,7 +14,7 @@
 
 ChatGPT 的對話 ： PDFCorwd
 
-網路上同主題的解法 : Notebook-LM
+網路上同主題的解法 : [Notebook-LM.md](https://github.com/Teoh-Kar-Keat/Multivariate-Linear-Regression/blob/main/Notebook-LM.md)
 
 ---
 
